@@ -50,7 +50,7 @@ class Post(models.Model):
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
 
-    
+
 class Comment(models.Model):
     post = models.ForeignKey(
         Post,

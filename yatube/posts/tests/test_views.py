@@ -2,7 +2,7 @@ import shutil
 import tempfile
 
 from django.test import TestCase, Client, override_settings
-from posts.models import *
+from posts.models import User, Post, Group, Follow, Comment
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
@@ -22,7 +22,7 @@ class PostsPagesTests(TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
-        cls.small_gif = (            
+        cls.small_gif = (
             b'\x47\x49\x46\x38\x39\x61\x02\x00'
             b'\x01\x00\x80\x00\x00\x00\x00\x00'
             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
@@ -91,7 +91,7 @@ class PostsPagesTests(TestCase):
             author=self.user_for_following
         )
 
-    #тестируем кэш
+    # тестируем кэш
     def test_index_cash(self):
         response = self.guest_client.get(reverse('posts:index'))
         Post.objects.get(pk=self.post.pk).delete()
@@ -144,7 +144,10 @@ class PostsPagesTests(TestCase):
         response = self.authorized_client.get(reverse('posts:index'))
         first_post = response.context['page_obj'][1]
         self.assertEqual(first_post.text, self.post_from_authorized.text)
-        self.assertEqual(first_post.author.username, self.user_for_authorized.username)
+        self.assertEqual(
+            first_post.author.username,
+            self.user_for_authorized.username
+        )
         self.assertContains(response, '<img')
 
     # проверяем контекст на странице группы
@@ -239,33 +242,27 @@ class PostsPagesTests(TestCase):
 
     # проверяем, что авторизованный пользователь может подписаться
     def test_follow(self):
-        self.authorized_client.get(reverse
-            ('posts:profile_follow', kwargs={
+        self.authorized_client.get(reverse(
+            'posts:profile_follow', kwargs={
                 'username': self.user_for_following.username
-            })
-        )
+            }
+        ))
         self.assertTrue(Follow.objects.filter(
             user=self.user_for_authorized, author=self.user_for_following
         ).exists())
 
-    # проверяем, что нельзя подписаться на самого себя
-    # def test_follow_to_self(self):
-        # response = self.authorized_client.get(reverse('posts:profile', kwargs={
-            # 'username': self.authorized_client.username
-        # }))
-
     # проверяем, что авторизованный пользователь может отписаться
     def test_unfollow(self):
-        self.authorized_client.get(reverse
-            ('posts:profile_follow', kwargs={
+        self.authorized_client.get(reverse(
+            'posts:profile_follow', kwargs={
                 'username': self.user_for_following.username
-            })
-        )
-        self.authorized_client.get(reverse
-            ('posts:profile_unfollow', kwargs={
+            }
+        ))
+        self.authorized_client.get(reverse(
+            'posts:profile_unfollow', kwargs={
                 'username': self.user_for_following.username
-            })
-        )
+            }
+        ))
         self.assertFalse(Follow.objects.filter(
             user=self.user_for_authorized, author=self.user_for_following
         ).exists())
@@ -273,11 +270,11 @@ class PostsPagesTests(TestCase):
     # проверяем, что новая запись появляется
     # в ленте у тех, кто подписан на автора
     def test_new_post_in_follow_index(self):
-        self.authorized_client.get(reverse
-            ('posts:profile_follow', kwargs={
+        self.authorized_client.get(reverse(
+            'posts:profile_follow', kwargs={
                 'username': self.user_for_following.username
-            })
-        )
+            }
+        ))
         response = self.authorized_client.get(
             reverse('posts:follow_index')
         )
@@ -286,11 +283,11 @@ class PostsPagesTests(TestCase):
     # проверяем, что новая запись не появляется
     # в ленте у тех, кто не подписан на автора
     def test_new_post_not_in_follow_index(self):
-        self.authorized_client_2.get(reverse
-            ('posts:profile_follow', kwargs={
+        self.authorized_client_2.get(reverse(
+            'posts:profile_follow', kwargs={
                 'username': self.user_for_authorized.username
-            })
-        )
+            }
+        ))
         response = self.authorized_client_2.get(
             reverse('posts:follow_index')
         )
