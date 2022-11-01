@@ -291,7 +291,9 @@ class PostsPagesTests(TestCase):
         response = self.authorized_client_2.get(
             reverse('posts:follow_index')
         )
-        self.assertNotIn(self.post_from_following, response.context['page_obj'])
+        self.assertNotIn(
+            self.post_from_following, response.context['page_obj']
+        )
 
 
 class PaginatorViewsTest(TestCase):
