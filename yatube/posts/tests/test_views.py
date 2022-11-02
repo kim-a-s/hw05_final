@@ -79,7 +79,7 @@ class PostsPagesTests(TestCase):
         self.post_from_authorized = Post.objects.create(
             text='Post from authorized client',
             author=self.user_for_authorized,
-            image='posts/small.gif',
+            image=self.uploaded,
         )
         self.comment = Comment.objects.create(
             text='Test comment',
@@ -90,13 +90,6 @@ class PostsPagesTests(TestCase):
             text='Post from following user',
             author=self.user_for_following
         )
-
-    # тестируем кэш
-    def test_index_cash(self):
-        response = self.guest_client.get(reverse('posts:index'))
-        Post.objects.get(pk=self.post.pk).delete()
-        response_cash = self.guest_client.get(reverse('posts:index'))
-        self.assertEqual(response.content, response_cash.content)
 
     # проверяем соответствие шаблонов
     def test_page_uses_correct_templates(self):
@@ -242,30 +235,40 @@ class PostsPagesTests(TestCase):
 
     # проверяем, что авторизованный пользователь может подписаться
     def test_follow(self):
-        self.authorized_client.get(reverse(
-            'posts:profile_follow', kwargs={
-                'username': self.user_for_following.username
-            }
-        ))
-        self.assertTrue(Follow.objects.filter(
-            user=self.user_for_authorized, author=self.user_for_following
-        ).exists())
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow', kwargs={
+                    'username': self.user_for_following.username
+                }
+            )
+        )
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.user_for_authorized, author=self.user_for_following
+            ).exists()
+        )
 
     # проверяем, что авторизованный пользователь может отписаться
     def test_unfollow(self):
-        self.authorized_client.get(reverse(
-            'posts:profile_follow', kwargs={
-                'username': self.user_for_following.username
-            }
-        ))
-        self.authorized_client.get(reverse(
-            'posts:profile_unfollow', kwargs={
-                'username': self.user_for_following.username
-            }
-        ))
-        self.assertFalse(Follow.objects.filter(
-            user=self.user_for_authorized, author=self.user_for_following
-        ).exists())
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_follow', kwargs={
+                    'username': self.user_for_following.username
+                }
+            )
+        )
+        self.authorized_client.get(
+            reverse(
+                'posts:profile_unfollow', kwargs={
+                    'username': self.user_for_following.username
+                }
+            )
+        )
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.user_for_authorized, author=self.user_for_following
+            ).exists()
+        )
 
     # проверяем, что новая запись появляется
     # в ленте у тех, кто подписан на автора
@@ -294,6 +297,13 @@ class PostsPagesTests(TestCase):
         self.assertNotIn(
             self.post_from_following, response.context['page_obj']
         )
+    
+    # тестируем кэш
+    def test_index_cash(self):
+        response = self.guest_client.get(reverse('posts:index'))
+        Post.objects.get(pk=self.post.pk).delete()
+        response_cash = self.guest_client.get(reverse('posts:index'))
+        self.assertEqual(response.content, response_cash.content)
 
 
 class PaginatorViewsTest(TestCase):
