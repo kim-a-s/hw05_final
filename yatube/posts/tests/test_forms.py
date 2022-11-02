@@ -73,9 +73,6 @@ class PostCreatFormTests(TestCase):
         )
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertEqual(Post.objects.first().text, form_data['text'])
-        self.assertTrue(Post.objects.filter(
-            text=form_data['text']
-        ).exists())
 
     # провверяем, что при отправке валидной формы
     # создается новый пост с группой в бд

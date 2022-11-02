@@ -49,9 +49,10 @@ class PostsURLTests(TestCase):
     def test_valid_url_all_client(self):
         urls_to_test = (
             reverse('posts:index'),
-            reverse('posts:profile', kwargs={
-                'username': self.user.username
-            }),
+            reverse(
+                'posts:profile',
+                kwargs={'username': self.user.username}
+            ),
             reverse(
                 'posts:post_detail', kwargs={'post_id': self.post.pk}
             ),
@@ -66,9 +67,10 @@ class PostsURLTests(TestCase):
     def test_valid_url_authorized_client(self):
         urls_to_test = (
             reverse('posts:post_create'),
-            reverse('posts:post_edit', kwargs={
-                'post_id': self.post_for_auth.pk
-            })
+            reverse(
+                'posts:post_edit',
+                kwargs={'post_id': self.post_for_auth.pk}
+            )
         )
         for url in urls_to_test:
             with self.subTest(url=url):
@@ -79,12 +81,14 @@ class PostsURLTests(TestCase):
     def test_redirect_anonym_client(self):
         urls_to_redirect = {
             reverse('posts:post_create'): '/auth/login/?next=/create/',
-            reverse('posts:post_edit', kwargs={
-                'post_id': self.post_for_auth.pk
-            }): '/auth/login/?next=/posts/2/edit/',
-            reverse('posts:add_comment', kwargs={
-                'post_id': self.post_for_auth.pk
-            }): '/auth/login/?next=/posts/2/comment/',
+            reverse(
+                'posts:post_edit',
+                kwargs={'post_id': self.post_for_auth.pk}
+            ): '/auth/login/?next=/posts/2/edit/',
+            reverse(
+                'posts:add_comment',
+                kwargs={'post_id': self.post_for_auth.pk}
+            ): '/auth/login/?next=/posts/2/comment/',
         }
         for url, redirect in urls_to_redirect.items():
             with self.subTest(url=url):
@@ -100,9 +104,10 @@ class PostsURLTests(TestCase):
     def test_correct_templates(self):
         urls_templates_name = {
             reverse('posts:index'): 'posts/index.html',
-            reverse('posts:profile', kwargs={
-                'username': self.user.username
-            }): 'posts/profile.html',
+            reverse(
+                'posts:profile',
+                kwargs={'username': self.user.username}
+            ): 'posts/profile.html',
             reverse(
                 'posts:post_detail', kwargs={'post_id': self.post.pk}
             ): 'posts/post_detail.html',
@@ -110,9 +115,10 @@ class PostsURLTests(TestCase):
                 'posts:group_list', kwargs={'slug': self.group.slug}
             ): 'posts/group_list.html',
             reverse('posts:post_create'): 'posts/create_post.html',
-            reverse('posts:post_edit', kwargs={
-                'post_id': self.post_for_auth.pk
-            }): 'posts/create_post.html',
+            reverse(
+                'posts:post_edit',
+                kwargs={'post_id': self.post_for_auth.pk}
+            ): 'posts/create_post.html',
             '/some-page': 'core/404.html',
         }
         for url, template in urls_templates_name.items():

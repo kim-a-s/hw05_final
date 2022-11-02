@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django import forms
+from django.core.cache import cache
 
 from posts.views import FIRST_TEN_POSTS
 
@@ -303,7 +304,10 @@ class PostsPagesTests(TestCase):
         response = self.guest_client.get(reverse('posts:index'))
         Post.objects.get(pk=self.post.pk).delete()
         response_cash = self.guest_client.get(reverse('posts:index'))
+        cache.clear()
+        response_clear = self.guest_client.get(reverse('posts:index'))
         self.assertEqual(response.content, response_cash.content)
+        self.assertNotEqual(response, response_clear)
 
 
 class PaginatorViewsTest(TestCase):
