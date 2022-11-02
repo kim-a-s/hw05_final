@@ -297,7 +297,7 @@ class PostsPagesTests(TestCase):
         self.assertNotIn(
             self.post_from_following, response.context['page_obj']
         )
-    
+
     # тестируем кэш
     def test_index_cash(self):
         response = self.guest_client.get(reverse('posts:index'))
