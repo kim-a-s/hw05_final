@@ -14,7 +14,9 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<!--  -->">Технологии</a>
+            <a class="nav-link {% if view_name == 'about:tech' %}active{% endif %}" 
+              href="{% url 'about:tech' %}">Технологии
+            </a>
           </li>
           {% if user.is_authenticated %}
           <li class="nav-item"> 
